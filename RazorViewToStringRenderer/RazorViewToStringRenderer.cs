@@ -20,6 +20,8 @@ namespace RazorViewToStringRenderer
 		private readonly ITempDataProvider _tempDataProvider;
 		private readonly IServiceProvider _serviceProvider;
 
+		public HttpContext HttpContext;
+
 		public RazorViewToStringRenderer(IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider,
 			IServiceProvider serviceProvider)
 		{
@@ -81,7 +83,7 @@ namespace RazorViewToStringRenderer
 
 		private ActionContext GetActionContext()
 		{
-			var httpContext = new DefaultHttpContext { RequestServices = this._serviceProvider};
+			var httpContext = this.HttpContext ?? new DefaultHttpContext { RequestServices = this._serviceProvider};
 			return new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
 		}
 	}
