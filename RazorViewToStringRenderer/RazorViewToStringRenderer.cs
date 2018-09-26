@@ -20,8 +20,25 @@ namespace RazorViewToStringRenderer
 		private readonly ITempDataProvider _tempDataProvider;
 		private readonly IServiceProvider _serviceProvider;
 
+		/// <summary>
+		/// Use it to override the DefaultHttpContext used
+		/// </summary>
 		public HttpContext HttpContext;
+		/// <summary>
+		/// Use it to specify specific RouteData
+		/// </summary>
+		public RouteData RouteData;
+		/// <summary>
+		/// Use it to specify specific ActionDescriptor
+		/// </summary>
+		public ActionDescriptor ActionDescriptor;
 
+		/// <summary>
+		/// Constructor for dependencies injection
+		/// </summary>
+		/// <param name="razorViewEngine"></param>
+		/// <param name="tempDataProvider"></param>
+		/// <param name="serviceProvider"></param>
 		public RazorViewToStringRenderer(IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider,
 			IServiceProvider serviceProvider)
 		{
@@ -30,6 +47,13 @@ namespace RazorViewToStringRenderer
 			this._serviceProvider = serviceProvider;
 		}
 
+		/// <summary>
+		/// Convert Razor view to string
+		/// </summary>
+		/// <typeparam name="TModel">Type of model to pass to the Razor view</typeparam>
+		/// <param name="viewName">Path or name of view</param>
+		/// <param name="model">Model to pass to the Razor view</param>
+		/// <returns>Razor view to string representation async</returns>
 		public async Task<string> RenderViewToStringRenderAsync<TModel>(string viewName, TModel model)
 		{
 			try
@@ -58,6 +82,12 @@ namespace RazorViewToStringRenderer
 			}
 		}
 
+		/// <summary>
+		/// Find Razor view in project
+		/// </summary>
+		/// <param name="actionContext">Context of action</param>
+		/// <param name="viewName">Path or view of Razor view</param>
+		/// <returns></returns>
 		private IView FindView(ActionContext actionContext, string viewName)
 		{
 			var getResultView = this._razorViewEngine.GetView(null, viewName, true);
@@ -81,10 +111,14 @@ namespace RazorViewToStringRenderer
 			throw new InvalidOperationException(errorMessage);
 		}
 
+		/// <summary>
+		/// Return context of action
+		/// </summary>
+		/// <returns></returns>
 		private ActionContext GetActionContext()
 		{
 			var httpContext = this.HttpContext ?? new DefaultHttpContext { RequestServices = this._serviceProvider};
-			return new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
+			return new ActionContext(httpContext, this.RouteData ?? new RouteData(), this.ActionDescriptor ?? new ActionDescriptor());
 		}
 	}
 }
